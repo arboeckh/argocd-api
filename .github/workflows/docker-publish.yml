@@ -56,25 +56,3 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
-
-      - name: Install cosign
-        if: github.event_name != 'pull_request'
-        uses: sigstore/cosign-installer@v3
-        with:
-          cosign-release: 'v2.2.4'
-
-      - name: Verify cosign installation
-        if: github.event_name != 'pull_request'
-        run: |
-          which cosign
-          cosign version
-
-      - name: Sign the published Docker image
-        if: ${{ github.event_name != 'pull_request' }}
-        env:
-          TAGS: ${{ steps.meta.outputs.tags }}
-          DIGEST: ${{ steps.build-and-push.outputs.digest }}
-        run: |
-          for tag in ${TAGS}; do
-            cosign sign --yes ${tag}@${DIGEST}
-          done
